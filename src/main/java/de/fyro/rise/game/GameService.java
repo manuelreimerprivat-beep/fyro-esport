@@ -40,8 +40,23 @@ public final class GameService {
 
     public boolean ensureCharacter(Player player) {
         if (profile(player).characterReady()) return true;
-        Text.error(player, "Wähle zuerst Fraktion und Klasse: /rise choose ...");
+        Text.error(player, "Schließe zuerst deine Auswahl im Buch des Aufstiegs ab.");
         return false;
+    }
+
+    public boolean completeCharacter(Player player, Faction faction, RiseClass riseClass) {
+        Profile profile = profile(player);
+        if (profile.characterReady()) {
+            Text.error(player, "Dein Charakter wurde bereits erstellt.");
+            return false;
+        }
+        if (faction == Faction.UNGEWAEHLT || riseClass == RiseClass.NOVIZE) return false;
+        profile.faction(faction);
+        profile.riseClass(riseClass);
+        gear.giveStarterKit(player, riseClass);
+        display.refresh(player);
+        data.saveAll();
+        return true;
     }
 
     public boolean chooseFaction(Player player, Faction faction) {
