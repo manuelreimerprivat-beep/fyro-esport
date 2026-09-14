@@ -55,7 +55,6 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
         }
         try {
             switch (args[0].toLowerCase(Locale.ROOT)) {
-                case "choose", "waehlen", "wählen" -> choose(player, args);
                 case "profile", "profil" -> profile(player);
                 case "skills", "faehigkeiten", "fähigkeiten" -> skills(player);
                 case "skill", "faehigkeit", "fähigkeit" -> skill(player, args);
@@ -278,7 +277,7 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
     private void help(Player player) {
         Text.send(player, "===== FOR YOUR RISE ONLY =====");
         player.sendMessage("§6/rise profile §7– Charakterübersicht");
-        player.sendMessage("§6/rise choose ... §7– Fraktion und Klasse wählen");
+        player.sendMessage("§6Charakterwahl §7– öffnet sich beim ersten Betreten automatisch");
         player.sendMessage("§6/rise skills §7– Fähigkeiten anzeigen");
         player.sendMessage("§6/rise quest list §7– Quests");
         player.sendMessage("§6/rise party ... §7– Gruppe");
@@ -291,9 +290,8 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> values = switch (args.length) {
-            case 1 -> List.of("help", "profile", "choose", "skills", "skill", "quest", "party", "guild", "balance", "pay", "pvp", "dungeon", "admin");
+            case 1 -> List.of("help", "profile", "skills", "skill", "quest", "party", "guild", "balance", "pay", "pvp", "dungeon", "admin");
             case 2 -> switch (args[0].toLowerCase(Locale.ROOT)) {
-                case "choose" -> List.of("faction", "class");
                 case "quest" -> List.of("list", "accept");
                 case "party" -> List.of("create", "invite", "accept", "leave", "info");
                 case "guild" -> List.of("create", "invite", "accept", "leave", "info", "deposit");
@@ -303,10 +301,7 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
                 case "admin" -> List.of("reload", "setlevel", "givegear", "spawnboss");
                 default -> List.of();
             };
-            case 3 -> args[0].equalsIgnoreCase("choose")
-                    ? (args[1].equalsIgnoreCase("faction") ? List.of("aurora", "obsidian")
-                    : List.of("krieger", "magier", "waldlaeufer", "priester"))
-                    : List.of();
+            case 3 -> List.of();
             default -> List.of();
         };
         String prefix = args[args.length - 1].toLowerCase(Locale.ROOT);
