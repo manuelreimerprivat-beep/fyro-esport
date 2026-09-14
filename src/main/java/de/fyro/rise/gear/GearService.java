@@ -20,12 +20,14 @@ public final class GearService {
     private final NamespacedKey powerKey;
     private final NamespacedKey classKey;
     private final NamespacedKey gearKey;
+    private final NamespacedKey defenseKey;
 
     public GearService(FyroRisePlugin plugin) {
         requiredLevelKey = new NamespacedKey(plugin, "required_level");
         powerKey = new NamespacedKey(plugin, "power");
         classKey = new NamespacedKey(plugin, "class");
         gearKey = new NamespacedKey(plugin, "gear");
+        defenseKey = new NamespacedKey(plugin, "defense");
     }
 
     public void giveStarterKit(Player player, RiseClass riseClass) {
@@ -98,6 +100,7 @@ public final class GearService {
         meta.getPersistentDataContainer().set(requiredLevelKey, PersistentDataType.INTEGER, required);
         meta.getPersistentDataContainer().set(classKey, PersistentDataType.STRING, riseClass.name());
         meta.getPersistentDataContainer().set(gearKey, PersistentDataType.BYTE, (byte) 1);
+        meta.getPersistentDataContainer().set(defenseKey, PersistentDataType.INTEGER, safeTier * 2);
         item.setItemMeta(meta);
         return item;
     }
@@ -110,6 +113,17 @@ public final class GearService {
         String requiredClass = meta.getPersistentDataContainer().getOrDefault(classKey, PersistentDataType.STRING, "");
         if (profile.level() < required || !profile.riseClass().name().equals(requiredClass)) return -1;
         return meta.getPersistentDataContainer().getOrDefault(powerKey, PersistentDataType.INTEGER, 0);
+    }
+
+    public int armorDefense(ItemStack item, Profile profile) {
+        if (item == null || !item.hasItemMeta()) return 0;
+        ItemMeta meta = item.getItemMeta();
+        Integer defense = meta.getPersistentDataContainer().get(defenseKey, PersistentDataType.INTEGER);
+        if (defense == null) return 0;
+        int required = meta.getPersistentDataContainer().getOrDefault(requiredLevelKey, PersistentDataType.INTEGER, 1);
+        String requiredClass = meta.getPersistentDataContainer().getOrDefault(classKey, PersistentDataType.STRING, "");
+        if (profile.level() < required || !profile.riseClass().name().equals(requiredClass)) return -1;
+        return defense;
     }
 
     public boolean isRiseGear(ItemStack item) {
