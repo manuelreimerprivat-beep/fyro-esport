@@ -7,6 +7,9 @@ import de.fyro.rise.storage.DataStore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -18,12 +21,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class DisplayService {
     private static final String TEAM_PREFIX = "fyr_";
 
+    private final FyroRisePlugin plugin;
     private final DataStore data;
     private final Scoreboard scoreboard;
     private final Map<UUID, String> guildTags = new ConcurrentHashMap<>();
+    private final Map<UUID, BossBar> experienceBars = new HashMap<>();
     private final Set<String> managedTeams = new HashSet<>();
 
     public DisplayService(FyroRisePlugin plugin, DataStore data) {
+        this.plugin = plugin;
         this.data = data;
         this.scoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard();
         for (Team team : new ArrayList<>(scoreboard.getTeams())) {
@@ -62,7 +68,23 @@ public final class DisplayService {
     public void syncExperience(Player player) {
         Profile profile = data.profile(player.getUniqueId());
         player.setLevel(profile.level());
-        player.setExp(LevelCurve.progress(profile.level(), profile.experience()));
+        float progress = LevelCurve.progress(profile.level(), profile.experience());
+        player.setExp(progress);
+
+        if (!plugin.getConfig().getBoolean("display.thick-experience-bar", true)) {
+            removeExperienceBar(player);
+            return;
+        }
+        BossBar bar = experienceBars.computeIfAbsent(player.getUniqueId(), ignored ->
+                Bukkit.createBossBar("FYRO-Erfahrung", BarColor.PURPLE, BarStyle.SEGMENTED_10));
+        if (!bar.getPlayers().contains(player)) bar.addPlayer(player);
+        bar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
+        if (profile.level() >= LevelCurve.MAX_LEVEL) {
+            bar.setTitle("✦ LEVEL 60 • MAXIMALES LEVEL ✦");
+        } else {
+            bar.setTitle("✦ LEVEL " + profile.level() + " • " + profile.experience()
+                    + " / " + LevelCurve.xpForNext(profile.level()) + " EP ✦");
+        }
     }
 
     public Component renderChat(UUID playerId, Component displayName, Component message) {
@@ -78,6 +100,7 @@ public final class DisplayService {
 
     public void forget(Player player) {
         guildTags.remove(player.getUniqueId());
+        removeExperienceBar(player);
     }
 
     public void shutdown() {
@@ -87,6 +110,13 @@ public final class DisplayService {
         }
         managedTeams.clear();
         guildTags.clear();
+        experienceBars.values().forEach(BossBar::removeAll);
+        experienceBars.clear();
+    }
+
+    private void removeExperienceBar(Player player) {
+        BossBar bar = experienceBars.remove(player.getUniqueId());
+        if (bar != null) bar.removeAll();
     }
 
     private String teamId(String guild) {

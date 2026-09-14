@@ -4,11 +4,10 @@ import de.fyro.rise.FyroRisePlugin;
 import de.fyro.rise.game.GameService;
 import de.fyro.rise.gear.GearService;
 import de.fyro.rise.model.Model.Profile;
+import de.fyro.rise.mob.MobLevelService;
 import de.fyro.rise.quest.QuestService;
 import de.fyro.rise.social.SocialService;
 import de.fyro.rise.util.Text;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.*;
@@ -25,18 +24,20 @@ public final class DungeonService {
     private final GearService gear;
     private final SocialService social;
     private final QuestService quests;
+    private final MobLevelService mobLevels;
     private final NamespacedKey bossKey;
     private final NamespacedKey ownerKey;
     private final Map<UUID, BossBar> bars = new HashMap<>();
     private final Map<UUID, Long> cooldowns = new HashMap<>();
 
     public DungeonService(FyroRisePlugin plugin, GameService game, GearService gear,
-                          SocialService social, QuestService quests) {
+                          SocialService social, QuestService quests, MobLevelService mobLevels) {
         this.plugin = plugin;
         this.game = game;
         this.gear = gear;
         this.social = social;
         this.quests = quests;
+        this.mobLevels = mobLevels;
         this.bossKey = new NamespacedKey(plugin, "rise_boss");
         this.ownerKey = new NamespacedKey(plugin, "dungeon_owner");
         long period = Math.max(5, plugin.getConfig().getLong("performance.boss-update-ticks", 10));
@@ -66,12 +67,12 @@ public final class DungeonService {
         int minutes = plugin.getConfig().getInt("dungeons.grave-crypt.cooldown-minutes", 10);
         cooldowns.put(leader.getUniqueId(), now + minutes * 60_000L);
         Location origin = safeSpawn(leader.getLocation().clone().add(8, 0, 8));
+        int dungeonLevel = mobLevels.clamp(profile.level());
         int minions = Math.min(6, plugin.getConfig().getInt("performance.maximum-dungeon-mobs-per-instance", 8));
         for (int index = 0; index < minions; index++) {
             Location at = origin.clone().add((index % 3) - 1, 0, (index / 3) + 2);
             LivingEntity mob = (LivingEntity) origin.getWorld().spawnEntity(at, index % 2 == 0 ? EntityType.ZOMBIE : EntityType.SKELETON);
-            mob.customName(Component.text("Kryptenwache", NamedTextColor.DARK_GRAY));
-            mob.setCustomNameVisible(true);
+            mobLevels.assignLevel(mob, dungeonLevel + (index % 3) - 1, "Kryptenwache");
         }
         spawnBoss(origin, leader);
         party.forEach(member -> Text.success(member, "Die Grabkrypta wurde geöffnet. Besiegt Grabfürst Morvath!"));
@@ -80,8 +81,6 @@ public final class DungeonService {
     public LivingEntity spawnBoss(Location location, Player owner) {
         Location at = safeSpawn(location);
         WitherSkeleton boss = (WitherSkeleton) at.getWorld().spawnEntity(at, EntityType.WITHER_SKELETON);
-        boss.customName(Component.text("Grabfürst Morvath", NamedTextColor.DARK_PURPLE));
-        boss.setCustomNameVisible(true);
         double maxHealth = plugin.getConfig().getDouble("dungeons.grave-crypt.boss-health", 240.0);
         Objects.requireNonNull(boss.getAttribute(Attribute.MAX_HEALTH)).setBaseValue(maxHealth);
         boss.setHealth(maxHealth);
@@ -89,7 +88,10 @@ public final class DungeonService {
         boss.getPersistentDataContainer().set(bossKey, PersistentDataType.BYTE, (byte) 1);
         boss.getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, owner.getUniqueId().toString());
         boss.getEquipment().setItemInMainHand(new ItemStack(Material.NETHERITE_SWORD));
-        BossBar bar = Bukkit.createBossBar("Grabfürst Morvath", BarColor.PURPLE, BarStyle.SEGMENTED_10);
+        int bossLevel = mobLevels.clamp(game.profile(owner).level() + 3);
+        mobLevels.assignLevel(boss, bossLevel, "Grabfürst Morvath");
+        BossBar bar = Bukkit.createBossBar("[Level " + bossLevel + "] Grabfürst Morvath",
+                BarColor.PURPLE, BarStyle.SEGMENTED_10);
         social.onlineParty(owner).forEach(bar::addPlayer);
         bars.put(boss.getUniqueId(), bar);
         boss.getWorld().playSound(at, Sound.ENTITY_WITHER_SPAWN, 1f, .8f);

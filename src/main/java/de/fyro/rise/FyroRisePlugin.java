@@ -1,5 +1,6 @@
 package de.fyro.rise;
 
+import de.fyro.rise.ability.AbilityBarService;
 import de.fyro.rise.command.RiseCommand;
 import de.fyro.rise.display.DisplayService;
 import de.fyro.rise.dungeon.DungeonService;
@@ -7,6 +8,7 @@ import de.fyro.rise.game.GameService;
 import de.fyro.rise.gear.GearService;
 import de.fyro.rise.listener.GameListener;
 import de.fyro.rise.intro.IntroCinematicService;
+import de.fyro.rise.mob.MobLevelService;
 import de.fyro.rise.quest.QuestService;
 import de.fyro.rise.selection.CharacterSelectionService;
 import de.fyro.rise.social.SocialService;
@@ -28,6 +30,8 @@ public final class FyroRisePlugin extends JavaPlugin {
     private DungeonService dungeons;
     private CharacterSelectionService selection;
     private IntroCinematicService intro;
+    private MobLevelService mobLevels;
+    private AbilityBarService abilities;
 
     @Override
     public void onEnable() {
@@ -37,11 +41,13 @@ public final class FyroRisePlugin extends JavaPlugin {
         data = new DataStore(this);
         gear = new GearService(this);
         display = new DisplayService(this, data);
+        mobLevels = new MobLevelService(this);
         game = new GameService(this, data, gear, display);
+        abilities = new AbilityBarService(this, game);
         quests = new QuestService(this, data, game);
         social = new SocialService(this, data, game, display);
-        dungeons = new DungeonService(this, game, gear, social, quests);
-        selection = new CharacterSelectionService(this, game);
+        dungeons = new DungeonService(this, game, gear, social, quests, mobLevels);
+        selection = new CharacterSelectionService(this, game, abilities);
         intro = new IntroCinematicService(this, data, selection);
 
         RiseCommand commandHandler = new RiseCommand(this, data, game, gear, quests, social, dungeons);
@@ -50,9 +56,12 @@ public final class FyroRisePlugin extends JavaPlugin {
         riseCommand.setTabCompleter(commandHandler);
 
         Bukkit.getPluginManager().registerEvents(
-                new GameListener(this, data, game, gear, quests, dungeons, display), this);
+                new GameListener(this, data, game, gear, quests, dungeons, display, mobLevels), this);
         Bukkit.getPluginManager().registerEvents(selection, this);
         Bukkit.getPluginManager().registerEvents(intro, this);
+        Bukkit.getPluginManager().registerEvents(mobLevels, this);
+        Bukkit.getPluginManager().registerEvents(abilities, this);
+        mobLevels.start();
 
         long minutes = Math.max(1, getConfig().getLong("server.autosave-minutes", 5));
         Bukkit.getScheduler().runTaskTimer(this, () -> {

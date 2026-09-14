@@ -12,6 +12,7 @@ import de.fyro.rise.util.GameRules;
 import de.fyro.rise.util.Text;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -171,14 +172,25 @@ public final class GameService {
         if (slot == 1) {
             LivingEntity target = nearestHostile(player, 5);
             if (target == null) return noTarget(player);
+            particleBeam(player.getEyeLocation(), target.getLocation().add(0, target.getHeight() * .55, 0),
+                    Particle.SWEEP_ATTACK, Particle.CRIT, 16);
+            expandingRings(target.getLocation().add(0, .15, 0), Particle.CRIT, Particle.SWEEP_ATTACK,
+                    2.2, 3, 2L);
+            player.getWorld().playSound(target.getLocation(), Sound.ENTITY_IRON_GOLEM_ATTACK, 1.2f, .75f);
             target.damage(6 + level * 0.22, player);
             target.setVelocity(player.getLocation().getDirection().normalize().multiply(1.1).setY(0.35));
         } else if (slot == 2) {
             player.setAbsorptionAmount(Math.min(20.0, player.getAbsorptionAmount() + 6 + level * 0.15));
-            player.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, player.getLocation().add(0, 1, 0), 20, .6, .8, .6);
+            expandingRings(player.getLocation().add(0, .15, 0), Particle.SWEEP_ATTACK, Particle.CRIT,
+                    5.0, 5, 2L);
+            spiralBurst(player.getLocation().add(0, .2, 0), Particle.HAPPY_VILLAGER, Particle.CRIT);
+            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_RAVAGER_ROAR, .8f, 1.25f);
         } else {
             for (LivingEntity target : nearbyHostiles(player, 4)) target.damage(4 + level * 0.18, player);
-            player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, player.getLocation().add(0, 1, 0), 20, 1.5, .4, 1.5);
+            spiralBurst(player.getLocation().add(0, .15, 0), Particle.SWEEP_ATTACK, Particle.CRIT);
+            expandingRings(player.getLocation().add(0, .1, 0), Particle.SWEEP_ATTACK, Particle.CRIT,
+                    4.5, 4, 1L);
+            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.3f, .65f);
         }
         return true;
     }
@@ -187,10 +199,15 @@ public final class GameService {
         if (slot == 1) {
             LivingEntity target = nearestHostile(player, 12);
             if (target == null) return noTarget(player);
+            Location impact = target.getLocation().add(0, target.getHeight() * .55, 0);
+            particleBeam(player.getEyeLocation(), impact, Particle.FLAME, Particle.END_ROD, 28);
+            spiralBurst(impact, Particle.FLAME, Particle.END_ROD);
+            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1.1f, 1.25f);
+            player.getWorld().playSound(impact, Sound.ENTITY_GENERIC_EXPLODE, .8f, 1.45f);
             target.setFireTicks(60);
             target.damage(7 + level * 0.28, player);
-            player.getWorld().spawnParticle(Particle.FLAME, target.getLocation().add(0, 1, 0), 25, .4, .6, .4, .04);
         } else if (slot == 2) {
+            Location origin = player.getLocation().clone();
             Vector direction = player.getLocation().getDirection().normalize();
             Location destination = player.getLocation().clone().add(direction.multiply(5));
             if (!destination.getBlock().isPassable() || !destination.clone().add(0, 1, 0).getBlock().isPassable()) {
@@ -198,14 +215,19 @@ public final class GameService {
                 return false;
             }
             player.teleport(destination);
-            player.getWorld().spawnParticle(Particle.PORTAL, destination.add(0, 1, 0), 35, .4, .7, .4);
+            spiralBurst(origin.add(0, .2, 0), Particle.PORTAL, Particle.END_ROD);
+            spiralBurst(destination.clone().add(0, .2, 0), Particle.PORTAL, Particle.END_ROD);
+            player.getWorld().playSound(destination, Sound.ENTITY_ENDERMAN_TELEPORT, 1.2f, 1.3f);
         } else {
             for (LivingEntity target : nearbyHostiles(player, 5)) {
                 target.damage(3 + level * 0.12, player);
                 target.setVelocity(new Vector(0, 0, 0));
                 target.setFreezeTicks(Math.min(target.getMaxFreezeTicks(), target.getFreezeTicks() + 100));
             }
-            player.getWorld().spawnParticle(Particle.SNOWFLAKE, player.getLocation().add(0, 1, 0), 45, 2, .8, 2, .03);
+            expandingRings(player.getLocation().add(0, .15, 0), Particle.SNOWFLAKE, Particle.END_ROD,
+                    5.5, 6, 2L);
+            spiralBurst(player.getLocation().add(0, .2, 0), Particle.SNOWFLAKE, Particle.END_ROD);
+            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 1.2f, .65f);
         }
         return true;
     }
@@ -214,18 +236,27 @@ public final class GameService {
         if (slot == 1) {
             LivingEntity target = nearestHostile(player, 18);
             if (target == null) return noTarget(player);
+            Location impact = target.getLocation().add(0, target.getHeight() * .6, 0);
+            particleBeam(player.getEyeLocation(), impact, Particle.CRIT, Particle.END_ROD, 34);
+            expandingRings(impact, Particle.CRIT, Particle.SWEEP_ATTACK, 1.8, 3, 1L);
+            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.2f, 1.55f);
             target.damage(8 + level * 0.25, player);
-            player.getWorld().spawnParticle(Particle.CRIT, target.getLocation().add(0, 1, 0), 24, .3, .6, .3);
         } else if (slot == 2) {
             Vector back = player.getLocation().getDirection().normalize().multiply(-1.0).setY(0.45);
             player.setVelocity(back);
+            spiralBurst(player.getLocation().add(0, .2, 0), Particle.CRIT, Particle.PORTAL);
+            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, .9f, .75f);
         } else {
             List<LivingEntity> targets = nearbyHostiles(player, 9);
             if (targets.isEmpty()) return noTarget(player);
             targets.stream().limit(6).forEach(target -> {
                 target.damage(5 + level * 0.18, player);
-                target.getWorld().spawnParticle(Particle.CRIT, target.getLocation().add(0, 1, 0), 12, .2, .5, .2);
+                fallingColumn(target.getLocation().add(0, target.getHeight() + 4, 0),
+                        Particle.CRIT, Particle.END_ROD);
             });
+            expandingRings(player.getLocation().add(0, .1, 0), Particle.CRIT, Particle.END_ROD,
+                    5.0, 4, 2L);
+            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1.4f);
         }
         return true;
     }
@@ -233,12 +264,16 @@ public final class GameService {
     private boolean castPriest(Player player, int slot, int level) {
         if (slot == 1) {
             heal(player, 6 + level * 0.18);
-            player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1, 0), 12, .6, .8, .6);
+            spiralBurst(player.getLocation().add(0, .2, 0), Particle.HEART, Particle.END_ROD);
+            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, .8f, 1.55f);
         } else if (slot == 2) {
             LivingEntity target = nearestHostile(player, 12);
             if (target == null) return noTarget(player);
+            Location impact = target.getLocation().add(0, target.getHeight() * .55, 0);
+            particleBeam(player.getEyeLocation(), impact, Particle.END_ROD, Particle.ENCHANT, 26);
+            expandingRings(impact, Particle.END_ROD, Particle.ENCHANT, 2.4, 4, 1L);
+            player.getWorld().playSound(impact, Sound.BLOCK_BEACON_ACTIVATE, 1f, 1.8f);
             target.damage(6 + level * 0.22, player);
-            target.getWorld().spawnParticle(Particle.END_ROD, target.getLocation().add(0, 1, 0), 22, .3, .7, .3, .02);
         } else {
             Profile caster = profile(player);
             heal(player, 5 + level * 0.12);
@@ -247,9 +282,71 @@ public final class GameService {
                     heal(ally, 5 + level * 0.12);
                 }
             }
-            player.getWorld().spawnParticle(Particle.END_ROD, player.getLocation().add(0, .2, 0), 45, 2.5, .2, 2.5, .01);
+            expandingRings(player.getLocation().add(0, .1, 0), Particle.END_ROD, Particle.HEART,
+                    6.0, 6, 2L);
+            spiralBurst(player.getLocation().add(0, .2, 0), Particle.ENCHANT, Particle.END_ROD);
+            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1.3f, .8f);
         }
         return true;
+    }
+
+    private void expandingRings(Location center, Particle primary, Particle secondary,
+                                double maximumRadius, int steps, long intervalTicks) {
+        Location fixed = center.clone();
+        for (int step = 1; step <= steps; step++) {
+            int frame = step;
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                double radius = maximumRadius * frame / steps;
+                particleRing(fixed, primary, radius, 22);
+                particleRing(fixed.clone().add(0, .25, 0), secondary, Math.max(.35, radius * .65), 14);
+            }, Math.max(0, step - 1) * intervalTicks);
+        }
+    }
+
+    private void particleRing(Location center, Particle particle, double radius, int points) {
+        for (int point = 0; point < points; point++) {
+            double angle = (Math.PI * 2 * point) / points;
+            Location at = center.clone().add(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+            center.getWorld().spawnParticle(particle, at, 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void particleBeam(Location start, Location end, Particle primary, Particle secondary, int points) {
+        if (start.getWorld() == null || start.getWorld() != end.getWorld()) return;
+        Vector path = end.toVector().subtract(start.toVector());
+        for (int point = 0; point <= points; point++) {
+            Location at = start.clone().add(path.clone().multiply(point / (double) points));
+            start.getWorld().spawnParticle(point % 4 == 0 ? secondary : primary, at, 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void spiralBurst(Location center, Particle primary, Particle secondary) {
+        Location fixed = center.clone();
+        for (int frame = 0; frame < 6; frame++) {
+            int step = frame;
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                for (int arm = 0; arm < 4; arm++) {
+                    double angle = step * .85 + arm * (Math.PI / 2);
+                    double radius = .35 + step * .18;
+                    Location at = fixed.clone().add(Math.cos(angle) * radius, .2 + step * .28,
+                            Math.sin(angle) * radius);
+                    fixed.getWorld().spawnParticle(arm % 2 == 0 ? primary : secondary,
+                            at, 2, .04, .04, .04, .01);
+                }
+            }, step * 2L);
+        }
+    }
+
+    private void fallingColumn(Location top, Particle primary, Particle secondary) {
+        Location fixed = top.clone();
+        for (int frame = 0; frame < 6; frame++) {
+            int step = frame;
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                Location at = fixed.clone().add(0, -step * .8, 0);
+                fixed.getWorld().spawnParticle(primary, at, 5, .18, .12, .18, .02);
+                fixed.getWorld().spawnParticle(secondary, at, 2, .08, .08, .08, .01);
+            }, step);
+        }
     }
 
     private void heal(Player player, double amount) {

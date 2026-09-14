@@ -6,12 +6,27 @@ intro:
   enabled: true
   play-on-every-join: false
   duration-seconds: 10
+display:
+  thick-experience-bar: true
 
 progression:
   max-level: 60
   base-kill-xp: 12
   base-kill-coins: 3
   death-coin-loss-percent: 5
+mob-levels:
+  enabled: true
+  minimum-level: 1
+  maximum-level: 60
+  blocks-per-level: 175
+  random-variance: 2
+  nether-minimum-level: 20
+  end-minimum-level: 40
+  health-percent-per-level: 3.0
+  damage-percent-per-level: 2.0
+  rewards:
+    xp-per-level: 2
+    coins-per-level: 0.15
 pvp:
   enabled: true
   same-faction-damage: false

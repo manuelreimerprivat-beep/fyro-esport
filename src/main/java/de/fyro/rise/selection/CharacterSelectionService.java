@@ -1,6 +1,7 @@
 package de.fyro.rise.selection;
 
 import de.fyro.rise.FyroRisePlugin;
+import de.fyro.rise.ability.AbilityBarService;
 import de.fyro.rise.game.GameService;
 import de.fyro.rise.model.Model.Faction;
 import de.fyro.rise.model.Model.Profile;
@@ -43,11 +44,13 @@ public final class CharacterSelectionService implements Listener {
 
     private final FyroRisePlugin plugin;
     private final GameService game;
+    private final AbilityBarService abilities;
     private final Map<UUID, SelectionState> sessions = new HashMap<>();
 
-    public CharacterSelectionService(FyroRisePlugin plugin, GameService game) {
+    public CharacterSelectionService(FyroRisePlugin plugin, GameService game, AbilityBarService abilities) {
         this.plugin = plugin;
         this.game = game;
+        this.abilities = abilities;
     }
 
     @EventHandler
@@ -156,6 +159,7 @@ public final class CharacterSelectionService implements Listener {
             return;
         }
         if (!game.completeCharacter(player, state.faction, state.riseClass)) return;
+        abilities.refresh(player, true);
         sessions.remove(player.getUniqueId());
         player.closeInventory();
         Location effect = player.getLocation().add(0, 1, 0);

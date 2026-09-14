@@ -6,6 +6,7 @@ import de.fyro.rise.display.DisplayService;
 import de.fyro.rise.game.GameService;
 import de.fyro.rise.gear.GearService;
 import de.fyro.rise.model.Model.Profile;
+import de.fyro.rise.mob.MobLevelService;
 import de.fyro.rise.quest.QuestService;
 import de.fyro.rise.storage.DataStore;
 import de.fyro.rise.util.Text;
@@ -25,9 +26,11 @@ public final class GameListener implements Listener {
     private final QuestService quests;
     private final DungeonService dungeons;
     private final DisplayService display;
+    private final MobLevelService mobLevels;
 
     public GameListener(FyroRisePlugin plugin, DataStore data, GameService game, GearService gear,
-                        QuestService quests, DungeonService dungeons, DisplayService display) {
+                        QuestService quests, DungeonService dungeons, DisplayService display,
+                        MobLevelService mobLevels) {
         this.plugin = plugin;
         this.data = data;
         this.game = game;
@@ -35,6 +38,7 @@ public final class GameListener implements Listener {
         this.quests = quests;
         this.dungeons = dungeons;
         this.display = display;
+        this.mobLevels = mobLevels;
     }
 
     @EventHandler
@@ -125,8 +129,12 @@ public final class GameListener implements Listener {
             case CREEPER, PILLAGER, WITCH -> 2;
             default -> 1;
         };
-        game.gainExperience(killer, baseXp * multiplier, entity.getType().name());
-        game.addCoins(killer, baseCoins * multiplier, "Beute");
+        int mobLevel = mobLevels.levelOf(entity);
+        if (mobLevels.grantsExperience(game.profile(killer).level(), entity)) {
+            game.gainExperience(killer, mobLevels.experienceReward(baseXp * multiplier, entity),
+                    entity.getType().name() + " • Level " + mobLevel);
+        }
+        game.addCoins(killer, mobLevels.coinReward(baseCoins * multiplier, entity), "Beute");
         quests.progress(killer, entity.getType().name());
     }
 
