@@ -18,8 +18,12 @@
 ## Erster Funktionstest
 
 ```text
-/rise choose faction aurora
-/rise choose class krieger
+Beim ersten Betreten:
+1. Im Buch des Aufstiegs einen Orden anklicken.
+2. Auf der nächsten Seite eine Klasse anklicken.
+3. Auswahl kontrollieren und "AUSWAHL ABSCHLIESSEN" anklicken.
+4. Danach im Chat ausführen:
+
 /rise profile
 /rise quest list
 /rise quest accept erste_schatten
