@@ -121,7 +121,7 @@ public final class DungeonService {
                 quests.progress(member, "FYRO_BOSS");
             }
         }
-        int tier = Math.max(1, Math.min(5, 1 + owner.getLevel() / 12));
+        int tier = Math.max(1, Math.min(5, 1 + game.profile(owner).level() / 12));
         entity.getWorld().dropItemNaturally(entity.getLocation(), gear.createWeapon(game.profile(owner).riseClass(), tier));
         entity.getWorld().playSound(entity.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 2f, .7f);
     }
