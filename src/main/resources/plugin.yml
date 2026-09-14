@@ -1,5 +1,5 @@
 name: FYRO-RISE
-version: '1.0.0'
+version: '1.1.0'
 main: de.fyro.rise.FyroRisePlugin
 api-version: '26.2'
 author: FYRO eSport
