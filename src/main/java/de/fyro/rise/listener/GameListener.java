@@ -57,6 +57,10 @@ public final class GameListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player armored) {
+            int defense = gear.armorDefense(armored.getInventory().getChestplate(), game.profile(armored));
+            if (defense > 0) event.setDamage(Math.max(0.5, event.getDamage() - (defense * 0.3)));
+        }
         Player attacker = attackingPlayer(event.getDamager());
         if (attacker == null) return;
         if (event.getEntity() instanceof Player victim && !game.canPvp(attacker, victim)) {
@@ -90,7 +94,7 @@ public final class GameListener implements Listener {
             return;
         }
         Player killer = entity.getKiller();
-        if (killer == null || entity instanceof Player || entity instanceof ArmorStand) return;
+        if (killer == null || !(entity instanceof Enemy)) return;
         int baseXp = plugin.getConfig().getInt("progression.base-kill-xp", 12);
         double baseCoins = plugin.getConfig().getDouble("progression.base-kill-coins", 3);
         int multiplier = switch (entity.getType()) {
