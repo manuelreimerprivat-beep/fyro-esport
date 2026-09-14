@@ -7,6 +7,7 @@ import de.fyro.rise.game.GameService;
 import de.fyro.rise.gear.GearService;
 import de.fyro.rise.listener.GameListener;
 import de.fyro.rise.quest.QuestService;
+import de.fyro.rise.selection.CharacterSelectionService;
 import de.fyro.rise.social.SocialService;
 import de.fyro.rise.storage.DataStore;
 import org.bukkit.Bukkit;
@@ -24,6 +25,7 @@ public final class FyroRisePlugin extends JavaPlugin {
     private QuestService quests;
     private SocialService social;
     private DungeonService dungeons;
+    private CharacterSelectionService selection;
 
     @Override
     public void onEnable() {
@@ -37,6 +39,7 @@ public final class FyroRisePlugin extends JavaPlugin {
         quests = new QuestService(this, data, game);
         social = new SocialService(this, data, game, display);
         dungeons = new DungeonService(this, game, gear, social, quests);
+        selection = new CharacterSelectionService(this, game);
 
         RiseCommand commandHandler = new RiseCommand(this, data, game, gear, quests, social, dungeons);
         PluginCommand riseCommand = Objects.requireNonNull(getCommand("rise"), "Befehl rise fehlt in plugin.yml");
@@ -45,6 +48,7 @@ public final class FyroRisePlugin extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(
                 new GameListener(this, data, game, gear, quests, dungeons, display), this);
+        Bukkit.getPluginManager().registerEvents(selection, this);
 
         long minutes = Math.max(1, getConfig().getLong("server.autosave-minutes", 5));
         Bukkit.getScheduler().runTaskTimer(this, () -> {
