@@ -1,0 +1,83 @@
+name: Build and Paper Test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: fyro-rise-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Quellcode auschecken
+        uses: actions/checkout@v4
+      - name: Java 25 einrichten
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Kompilieren und Unit-Tests
+        run: mvn --batch-mode --update-snapshots clean verify
+      - name: Paper 26.2 laden
+        shell: bash
+        run: |
+          mkdir -p server/plugins dist
+          cp target/FYRO-RISE-1.4.0.jar server/plugins/
+          curl -fsSL -H "User-Agent: FYRO-RISE-CI/1.0 (https://github.com/${{ github.repository }})" "https://fill.papermc.io/v3/projects/paper/versions/26.2/builds" -o builds.json
+          PAPER_URL=$(python3 - <<'PY'
+          import json
+          with open("builds.json", encoding="utf-8") as handle:
+              builds = json.load(handle)
+          stable = [build for build in builds if build.get("channel") == "STABLE"]
+          chosen = stable[0] if stable else builds[0]
+          print(chosen["downloads"]["server:default"]["url"])
+          PY
+          )
+          curl -fsSL -H "User-Agent: FYRO-RISE-CI/1.0 (https://github.com/${{ github.repository }})" "$PAPER_URL" -o server/paper.jar
+          echo "eula=true" > server/eula.txt
+          printf "online-mode=false\nview-distance=4\nsimulation-distance=3\n" > server/server.properties
+      - name: Echter Paper-Starttest
+        shell: bash
+        run: |
+          cd server
+          java -Xms1G -Xmx2G -jar paper.jar --nogui > server.log 2>&1 &
+          PAPER_PID=$!
+          READY=0
+          for attempt in $(seq 1 90); do
+            if grep -q "FYRO-RISE v1.4.0 aktiviert" server.log; then READY=1; break; fi
+            if ! kill -0 "$PAPER_PID" 2>/dev/null; then cat server.log; exit 1; fi
+            sleep 2
+          done
+          kill -TERM "$PAPER_PID" 2>/dev/null || true
+          for attempt in $(seq 1 30); do
+            if ! kill -0 "$PAPER_PID" 2>/dev/null; then break; fi
+            sleep 1
+          done
+          kill -KILL "$PAPER_PID" 2>/dev/null || true
+          wait "$PAPER_PID" || true
+          cat server.log
+          test "$READY" -eq 1
+          ! grep -E "Error occurred while enabling FYRO-RISE|Could not load.*FYRO-RISE|NoClassDefFoundError" server.log
+      - name: Serverpaket zusammenstellen
+        run: |
+          cp target/FYRO-RISE-1.4.0.jar dist/
+          cp INSTALLATION_DE.md dist/
+          cp README.md dist/
+          cp server/server.log dist/PAPER_STARTTEST.log
+      - name: Fertige JAR hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: FYRO-RISE-Serverpaket
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30

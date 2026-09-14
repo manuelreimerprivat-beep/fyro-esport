@@ -1,0 +1,21 @@
+name: FYRO-RISE
+version: '1.4.0'
+main: de.fyro.rise.FyroRisePlugin
+api-version: '26.2'
+author: FYRO eSport
+website: https://www.fyro-esport.de
+description: Eigenständiges Level-1-bis-60-Minecraft-RPG für FYRO.
+load: POSTWORLD
+commands:
+  rise:
+    description: Hauptbefehl für FYRO RISE
+    usage: /rise help
+    aliases: [fyro, rpg]
+    permission: fyrorise.use
+permissions:
+  fyrorise.use:
+    description: Erlaubt die normalen RPG-Befehle
+    default: true
+  fyrorise.admin:
+    description: Erlaubt Verwaltung, Boss-Spawns und Testausrüstung
+    default: op

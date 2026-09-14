@@ -1,0 +1,51 @@
+server:
+  max-tested-players: 50
+  autosave-minutes: 5
+  welcome-message: true
+intro:
+  enabled: true
+  play-on-every-join: false
+  duration-seconds: 10
+display:
+  thick-experience-bar: true
+restart:
+  countdown-seconds: 10
+  message: "Wir updaten kurz mal diese Magische Welt! Sie ist gleich wieder für euch da!"
+  server-command: "restart"
+targeting:
+  enabled: true
+  maximum-distance: 48.0
+  update-ticks: 5
+
+progression:
+  max-level: 60
+  base-kill-xp: 12
+  base-kill-coins: 3
+  death-coin-loss-percent: 5
+mob-levels:
+  enabled: true
+  minimum-level: 1
+  maximum-level: 60
+  blocks-per-level: 175
+  random-variance: 2
+  nether-minimum-level: 20
+  end-minimum-level: 40
+  health-percent-per-level: 3.0
+  damage-percent-per-level: 2.0
+  rewards:
+    xp-per-level: 2
+    coins-per-level: 0.15
+pvp:
+  enabled: true
+  same-faction-damage: false
+  require-both-opted-in: true
+dungeons:
+  grave-crypt:
+    minimum-level: 5
+    cooldown-minutes: 10
+    boss-health: 240.0
+    reward-xp: 500
+    reward-coins: 275
+performance:
+  maximum-dungeon-mobs-per-instance: 8
+  boss-update-ticks: 10
