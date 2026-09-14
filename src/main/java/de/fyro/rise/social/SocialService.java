@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -253,7 +254,8 @@ public final class SocialService {
     public void saveGuilds() {
         YamlConfiguration yaml = new YamlConfiguration();
         for (Guild guild : guilds.values()) {
-            String key = guild.name().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "_");
+            String key = Base64.getUrlEncoder().withoutPadding()
+                    .encodeToString(guild.name().toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8));
             String root = "guilds." + key;
             yaml.set(root + ".name", guild.name());
             yaml.set(root + ".owner", guild.owner().toString());
