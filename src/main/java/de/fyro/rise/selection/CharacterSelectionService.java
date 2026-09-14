@@ -51,12 +51,6 @@ public final class CharacterSelectionService implements Listener {
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskLater(plugin, () -> startIfRequired(player), 45L);
-    }
-
-    @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         sessions.remove(event.getPlayer().getUniqueId());
     }
