@@ -1,6 +1,7 @@
 package de.fyro.rise.social;
 
 import de.fyro.rise.FyroRisePlugin;
+import de.fyro.rise.display.DisplayService;
 import de.fyro.rise.game.GameService;
 import de.fyro.rise.model.Model.Guild;
 import de.fyro.rise.model.Model.Profile;
@@ -30,16 +31,18 @@ public final class SocialService {
     private final FyroRisePlugin plugin;
     private final DataStore data;
     private final GameService game;
+    private final DisplayService display;
     private final Map<UUID, Party> partyByMember = new HashMap<>();
     private final Map<UUID, Invite> partyInvites = new HashMap<>();
     private final Map<String, Guild> guilds = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final Map<UUID, String> guildInvites = new HashMap<>();
     private final File guildFile;
 
-    public SocialService(FyroRisePlugin plugin, DataStore data, GameService game) {
+    public SocialService(FyroRisePlugin plugin, DataStore data, GameService game, DisplayService display) {
         this.plugin = plugin;
         this.data = data;
         this.game = game;
+        this.display = display;
         this.guildFile = new File(plugin.getDataFolder(), "guilds.yml");
         loadGuilds();
     }
@@ -144,6 +147,7 @@ public final class SocialService {
         profile.guild(clean);
         saveGuilds();
         data.saveAll();
+        display.refresh(player);
         Text.success(player, "Gilde gegründet: " + clean);
     }
 
@@ -179,6 +183,7 @@ public final class SocialService {
         profile.guild(guild.name());
         saveGuilds();
         data.saveAll();
+        display.refresh(player);
         Text.success(player, "Du bist " + guild.name() + " beigetreten.");
     }
 
@@ -187,6 +192,7 @@ public final class SocialService {
         Guild guild = guilds.get(profile.guild());
         if (guild == null) {
             profile.guild("");
+            display.refresh(player);
             Text.error(player, "Du bist in keiner Gilde.");
             return;
         }
@@ -199,6 +205,7 @@ public final class SocialService {
         if (guild.members().isEmpty()) guilds.remove(guild.name());
         saveGuilds();
         data.saveAll();
+        display.refresh(player);
         Text.success(player, "Du hast die Gilde verlassen.");
     }
 
