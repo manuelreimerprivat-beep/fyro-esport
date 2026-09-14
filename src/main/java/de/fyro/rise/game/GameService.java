@@ -1,6 +1,7 @@
 package de.fyro.rise.game;
 
 import de.fyro.rise.FyroRisePlugin;
+import de.fyro.rise.display.DisplayService;
 import de.fyro.rise.gear.GearService;
 import de.fyro.rise.model.Model.Faction;
 import de.fyro.rise.model.Model.Profile;
@@ -23,12 +24,14 @@ public final class GameService {
     private final FyroRisePlugin plugin;
     private final DataStore data;
     private final GearService gear;
+    private final DisplayService display;
     private final Map<UUID, Map<Integer, Long>> cooldowns = new HashMap<>();
 
-    public GameService(FyroRisePlugin plugin, DataStore data, GearService gear) {
+    public GameService(FyroRisePlugin plugin, DataStore data, GearService gear, DisplayService display) {
         this.plugin = plugin;
         this.data = data;
         this.gear = gear;
+        this.display = display;
     }
 
     public Profile profile(Player player) {
@@ -61,6 +64,7 @@ public final class GameService {
         }
         profile.riseClass(riseClass);
         gear.giveStarterKit(player, riseClass);
+        display.refresh(player);
         data.saveAll();
         Text.success(player, "Deine Klasse ist jetzt " + riseClass.displayName() + ".");
         return true;
@@ -73,7 +77,12 @@ public final class GameService {
             player.sendMessage(Component.text("LEVEL AUFSTIEG! Du bist jetzt Level " + newLevel + ".", NamedTextColor.GOLD));
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1.1f);
         });
+        display.syncExperience(player);
         player.sendActionBar(Component.text("+" + amount + " EP • " + reason, NamedTextColor.AQUA));
+    }
+
+    public void syncExperience(Player player) {
+        display.syncExperience(player);
     }
 
     public void addCoins(Player player, double amount, String reason) {
