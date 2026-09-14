@@ -243,6 +243,7 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
                 profile.level(Integer.parseInt(args[3]));
                 profile.experience(0);
                 data.saveAll();
+                game.syncExperience(target);
                 Text.success(player, target.getName() + " ist jetzt Level " + profile.level() + ".");
             }
             case "givegear" -> {
