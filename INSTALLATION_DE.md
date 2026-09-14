@@ -10,7 +10,7 @@
 
 1. Server stoppen und im MC-Host24-Panel ein Backup erstellen.
 2. Im Panel Paper 26.2 sowie Java 25 auswählen.
-3. `FYRO-RISE-1.0.0.jar` in den Ordner `plugins` hochladen.
+3. Eine vorhandene ältere FYRO-RISE-JAR löschen und `FYRO-RISE-1.1.0.jar` in den Ordner `plugins` hochladen.
 4. Server vollständig neu starten; niemals `/reload` verwenden.
 5. In der Konsole muss `FYRO-RISE v1.0.0 aktiviert` stehen.
 6. Im Spiel `/rise help` ausführen.
@@ -35,6 +35,10 @@ Operator-Test:
 /rise admin spawnboss
 /rise dungeon crypt
 ```
+
+## Anzeigen
+
+Nach dem Beitritt zu einer Gilde steht `[Gildenname]` im Chat und über dem Charakter. Die Zahl an der grünen Erfahrungsleiste ist das FYRO-Level; die Leiste zeigt den Fortschritt bis zum nächsten Level.
 
 ## Hauptbefehle
 
