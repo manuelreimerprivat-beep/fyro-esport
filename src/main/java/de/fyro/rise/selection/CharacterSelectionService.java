@@ -261,7 +261,7 @@ public final class CharacterSelectionService implements Listener {
         ItemMeta meta = stack.getItemMeta();
         meta.displayName(Component.text(name, NamedTextColor.GOLD));
         List<Component> lore = Arrays.stream(loreLines)
-                .map(line -> Component.text(line, NamedTextColor.GRAY))
+                .<Component>map(line -> Component.text(line, NamedTextColor.GRAY))
                 .toList();
         meta.lore(lore);
         stack.setItemMeta(meta);
