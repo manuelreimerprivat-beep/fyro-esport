@@ -10,9 +10,9 @@
 
 1. Server stoppen und im MC-Host24-Panel ein Backup erstellen.
 2. Im Panel Paper 26.2 sowie Java 25 auswählen.
-3. Eine vorhandene ältere FYRO-RISE-JAR löschen und `FYRO-RISE-1.3.0.jar` in den Ordner `plugins` hochladen.
+3. Eine vorhandene ältere FYRO-RISE-JAR löschen und `FYRO-RISE-1.4.0.jar` in den Ordner `plugins` hochladen.
 4. Server vollständig neu starten; niemals `/reload` verwenden.
-5. In der Konsole muss `FYRO-RISE v1.3.0 aktiviert` stehen.
+5. In der Konsole muss `FYRO-RISE v1.4.0 aktiviert` stehen.
 6. Im Spiel `/rise help` ausführen.
 
 ## Erster Funktionstest
@@ -42,7 +42,13 @@ Operator-Test:
 
 ## Intro-Cutscene
 
-Beim ersten Betreten läuft eine ungefähr zehn Sekunden lange Vanilla-Cutscene. Sie benötigt weder Mod noch Resourcepack. Anschließend öffnet sich das Buch des Aufstiegs. In `config.yml` kann die Dauer über `intro.duration-seconds` zwischen 6 und 20 Sekunden eingestellt werden. Mit `intro.play-on-every-join: true` läuft sie bei jedem Beitritt.
+Beim ersten Betreten läuft eine ungefähr zehn Sekunden lange Vanilla-Cutscene. Sie zeigt ausschließlich „Herzlich Willkommen“, „in der magischen Welt“ und „von FYRO“. Sie benötigt weder Mod noch Resourcepack. Anschließend öffnet sich das Buch des Aufstiegs. In `config.yml` kann die Dauer über `intro.duration-seconds` zwischen 6 und 20 Sekunden eingestellt werden. Mit `intro.play-on-every-join: true` läuft sie bei jedem Beitritt.
+
+## Update-Neustart mit Countdown
+
+Ein Operator startet den sicheren Neustart im Spiel mit `/rise admin restart`. In der Serverkonsole lautet der Befehl `rise admin restart`. Alle verbundenen Spieler sehen anschließend jede Sekunde einen großen Countdown von 10 bis 0 und den Schriftzug „Wir updaten kurz mal diese Magische Welt! Sie ist gleich wieder für euch da!“. Nach der 0 werden Spieler- und Weltdaten gespeichert, alle Spieler mit dem Hinweis getrennt und der Paper-Neustart ausgeführt.
+
+Countdown, Text und abschließender Serverbefehl können unter `restart` in `config.yml` angepasst werden. Damit der Server selbstständig wieder hochfährt, muss der Paper-Neustartbefehl im MC-Host24-Panel unterstützt beziehungsweise ein Neustartskript eingerichtet sein.
 
 ## Anzeigen
 
@@ -55,6 +61,12 @@ Jeder feindliche Mob zeigt dauerhaft `[Level X] Name` über dem Kopf. Mit wachse
 Ist ein Spieler mindestens drei Level höher als der besiegte Gegner, gibt dieser Gegner keine EP. Münzen und Questfortschritt bleiben erhalten. Beispiel: Ein Spieler auf Level 10 erhält von Gegnern bis Level 7 keine EP, von Gegnern ab Level 8 dagegen schon.
 
 Alle Werte können unter `mob-levels` in `plugins/FYRO-RISE/config.yml` angepasst werden. Nach Änderungen den Server vollständig neu starten.
+
+## WoW-ähnliches Zielsystem
+
+Ein Rechtsklick auf einen feindlichen Mob oder der erste Treffer nimmt ihn ins Ziel. Oben erscheint ein eigener Zielbalken mit Monstersymbol, Name, Level sowie aktuellen und maximalen Lebenspunkten. Seine Farbe wechselt mit der verbleibenden Gesundheit von Grün über Gelb zu Rot. Die Klassenfähigkeiten greifen bevorzugt dieses Ziel an und melden außerhalb ihrer Reichweite, dass kein gültiges Ziel erreichbar ist. Beim Tod, Weltwechsel, Verlassen des Servers oder ab 48 Blöcken Entfernung verschwindet das Ziel automatisch.
+
+Da kein Resourcepack oder Client-Mod verwendet wird, besteht das kleine Porträt aus einem passenden Minecraft-Symbol statt einer externen Bilddatei. Entfernung und Aktualisierungsrate können unter `targeting` in `config.yml` angepasst werden.
 
 ## Fähigkeiten über die Tastatur
 
@@ -82,6 +94,7 @@ Hierfür wird kein Mod und kein zusätzlicher Download benötigt. Alternativ fun
 | Gilde | `/rise guild create\|invite\|accept\|leave\|info\|deposit` |
 | Wirtschaft | `/rise balance`, `/rise pay <Spieler> <Betrag>` |
 | Dungeon/PvP | `/rise dungeon crypt`, `/rise pvp on\|off` |
+| Sicherer Neustart | `/rise admin restart` |
 
 ## Leistung
 

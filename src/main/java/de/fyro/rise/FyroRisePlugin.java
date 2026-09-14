@@ -10,9 +10,11 @@ import de.fyro.rise.listener.GameListener;
 import de.fyro.rise.intro.IntroCinematicService;
 import de.fyro.rise.mob.MobLevelService;
 import de.fyro.rise.quest.QuestService;
+import de.fyro.rise.restart.RestartCountdownService;
 import de.fyro.rise.selection.CharacterSelectionService;
 import de.fyro.rise.social.SocialService;
 import de.fyro.rise.storage.DataStore;
+import de.fyro.rise.targeting.TargetingService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,6 +34,8 @@ public final class FyroRisePlugin extends JavaPlugin {
     private IntroCinematicService intro;
     private MobLevelService mobLevels;
     private AbilityBarService abilities;
+    private RestartCountdownService restartCountdown;
+    private TargetingService targeting;
 
     @Override
     public void onEnable() {
@@ -42,15 +46,18 @@ public final class FyroRisePlugin extends JavaPlugin {
         gear = new GearService(this);
         display = new DisplayService(this, data);
         mobLevels = new MobLevelService(this);
-        game = new GameService(this, data, gear, display);
+        targeting = new TargetingService(this, mobLevels);
+        game = new GameService(this, data, gear, display, targeting);
         abilities = new AbilityBarService(this, game);
         quests = new QuestService(this, data, game);
         social = new SocialService(this, data, game, display);
         dungeons = new DungeonService(this, game, gear, social, quests, mobLevels);
+        restartCountdown = new RestartCountdownService(this);
         selection = new CharacterSelectionService(this, game, abilities);
         intro = new IntroCinematicService(this, data, selection);
 
-        RiseCommand commandHandler = new RiseCommand(this, data, game, gear, quests, social, dungeons);
+        RiseCommand commandHandler = new RiseCommand(this, data, game, gear, quests, social, dungeons,
+                restartCountdown);
         PluginCommand riseCommand = Objects.requireNonNull(getCommand("rise"), "Befehl rise fehlt in plugin.yml");
         riseCommand.setExecutor(commandHandler);
         riseCommand.setTabCompleter(commandHandler);
@@ -61,6 +68,7 @@ public final class FyroRisePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(intro, this);
         Bukkit.getPluginManager().registerEvents(mobLevels, this);
         Bukkit.getPluginManager().registerEvents(abilities, this);
+        Bukkit.getPluginManager().registerEvents(targeting, this);
         mobLevels.start();
 
         long minutes = Math.max(1, getConfig().getLong("server.autosave-minutes", 5));
@@ -74,8 +82,10 @@ public final class FyroRisePlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (restartCountdown != null) restartCountdown.shutdown();
         if (intro != null) intro.shutdown();
         if (dungeons != null) dungeons.shutdown();
+        if (targeting != null) targeting.shutdown();
         if (data != null) data.saveAll();
         if (social != null) social.saveGuilds();
         if (display != null) display.shutdown();

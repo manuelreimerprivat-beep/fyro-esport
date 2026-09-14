@@ -8,6 +8,14 @@ intro:
   duration-seconds: 10
 display:
   thick-experience-bar: true
+restart:
+  countdown-seconds: 10
+  message: "Wir updaten kurz mal diese Magische Welt! Sie ist gleich wieder für euch da!"
+  server-command: "restart"
+targeting:
+  enabled: true
+  maximum-distance: 48.0
+  update-ticks: 5
 
 progression:
   max-level: 60

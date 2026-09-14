@@ -9,6 +9,7 @@ import de.fyro.rise.model.Model.Profile;
 import de.fyro.rise.model.Model.RiseClass;
 import de.fyro.rise.progression.LevelCurve;
 import de.fyro.rise.quest.QuestService;
+import de.fyro.rise.restart.RestartCountdownService;
 import de.fyro.rise.social.SocialService;
 import de.fyro.rise.storage.DataStore;
 import de.fyro.rise.util.Text;
@@ -26,9 +27,11 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
     private final QuestService quests;
     private final SocialService social;
     private final DungeonService dungeons;
+    private final RestartCountdownService restartCountdown;
 
     public RiseCommand(FyroRisePlugin plugin, DataStore data, GameService game, GearService gear,
-                       QuestService quests, SocialService social, DungeonService dungeons) {
+                       QuestService quests, SocialService social, DungeonService dungeons,
+                       RestartCountdownService restartCountdown) {
         this.plugin = plugin;
         this.data = data;
         this.game = game;
@@ -36,16 +39,20 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
         this.quests = quests;
         this.social = social;
         this.dungeons = dungeons;
+        this.restartCountdown = restartCountdown;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            if (args.length >= 2 && args[0].equalsIgnoreCase("admin")
+                    && args[1].equalsIgnoreCase("restart")) {
+                restartCountdown.start(sender);
+            } else if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
                 plugin.reloadPlugin();
                 Text.success(sender, "Konfiguration neu geladen.");
             } else {
-                Text.error(sender, "Dieser Befehl benötigt einen Spieler.");
+                Text.error(sender, "Konsole: rise admin restart oder rise reload");
             }
             return true;
         }
@@ -227,7 +234,7 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 2) {
-            Text.send(player, "/rise admin <reload|setlevel|givegear|spawnboss>");
+            Text.send(player, "/rise admin <reload|restart|setlevel|givegear|spawnboss>");
             return;
         }
         switch (args[1].toLowerCase(Locale.ROOT)) {
@@ -235,6 +242,7 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
                 plugin.reloadPlugin();
                 Text.success(player, "Konfiguration und Quests neu geladen.");
             }
+            case "restart", "neustart" -> restartCountdown.start(player);
             case "setlevel" -> {
                 Player target = requireOnline(player, args, 2);
                 if (target == null || args.length < 4) return;
@@ -260,7 +268,7 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
                 dungeons.spawnBoss(player.getLocation().add(4, 0, 4), player);
                 Text.success(player, "Testboss beschworen.");
             }
-            default -> Text.error(player, "Adminbefehle: reload, setlevel, givegear, spawnboss.");
+            default -> Text.error(player, "Adminbefehle: reload, restart, setlevel, givegear, spawnboss.");
         }
     }
 
@@ -298,7 +306,7 @@ public final class RiseCommand implements CommandExecutor, TabCompleter {
                 case "pvp" -> List.of("on", "off");
                 case "dungeon" -> List.of("crypt");
                 case "skill" -> List.of("1", "2", "3");
-                case "admin" -> List.of("reload", "setlevel", "givegear", "spawnboss");
+                case "admin" -> List.of("reload", "restart", "setlevel", "givegear", "spawnboss");
                 default -> List.of();
             };
             case 3 -> List.of();

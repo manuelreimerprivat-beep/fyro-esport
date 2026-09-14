@@ -144,22 +144,17 @@ public final class IntroCinematicService implements Listener {
         }
 
         if (scene.tick == 12) {
-            player.sendTitle("§6§lFYRO", "§7FOR YOUR RISE ONLY", 8, 38, 10);
+            player.sendTitle("§6§lHerzlich Willkommen", "", 8, 42, 10);
             player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME,
                     SoundCategory.MASTER, 1.2f, 0.7f);
         }
-        if (scene.tick == Math.round(totalTicks * 0.30f)) {
-            player.sendTitle("§f§lZWEI ORDEN", "§7Welchem wirst du folgen?", 8, 38, 10);
+        if (scene.tick == Math.round(totalTicks * 0.38f)) {
+            player.sendTitle("§f§lin der magischen Welt", "", 8, 42, 10);
             player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME,
                     SoundCategory.MASTER, 1.0f, 0.9f);
         }
-        if (scene.tick == Math.round(totalTicks * 0.55f)) {
-            player.sendTitle("§e§lVIER KLASSEN", "§7Welchen Weg wirst du wählen?", 8, 38, 10);
-            player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME,
-                    SoundCategory.MASTER, 1.0f, 1.15f);
-        }
-        if (scene.tick == Math.round(totalTicks * 0.78f)) {
-            player.sendTitle("§6§lDEINE GESCHICHTE", "§fbeginnt jetzt …", 8, 42, 12);
+        if (scene.tick == Math.round(totalTicks * 0.70f)) {
+            player.sendTitle("§5§lvon §6§lFYRO", "", 8, 48, 12);
             player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,
                     SoundCategory.MASTER, 1.1f, 0.65f);
         }

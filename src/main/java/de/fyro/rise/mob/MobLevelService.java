@@ -70,10 +70,12 @@ public final class MobLevelService implements Listener {
 
     private final FyroRisePlugin plugin;
     private final NamespacedKey levelKey;
+    private final NamespacedKey nameKey;
 
     public MobLevelService(FyroRisePlugin plugin) {
         this.plugin = plugin;
         this.levelKey = new NamespacedKey(plugin, "mob_level");
+        this.nameKey = new NamespacedKey(plugin, "mob_display_name");
     }
 
     public void start() {
@@ -98,6 +100,10 @@ public final class MobLevelService implements Listener {
         if (!enabled() || !(entity instanceof Enemy) || entity.isDead() || !entity.isValid()) return;
         Integer stored = entity.getPersistentDataContainer().get(levelKey, PersistentDataType.INTEGER);
         if (stored != null) {
+            if (!entity.getPersistentDataContainer().has(nameKey, PersistentDataType.STRING)) {
+                entity.getPersistentDataContainer().set(nameKey, PersistentDataType.STRING,
+                        germanName(entity.getType()));
+            }
             entity.setCustomNameVisible(true);
             if (entity.customName() == null) setName(entity, stored, germanName(entity.getType()));
             return;
@@ -110,6 +116,7 @@ public final class MobLevelService implements Listener {
         Integer existing = entity.getPersistentDataContainer().get(levelKey, PersistentDataType.INTEGER);
         int level = clamp(requestedLevel);
         entity.getPersistentDataContainer().set(levelKey, PersistentDataType.INTEGER, level);
+        entity.getPersistentDataContainer().set(nameKey, PersistentDataType.STRING, displayName);
         setName(entity, level, displayName);
         if (existing == null) scaleAttributes(entity, level);
     }
@@ -117,6 +124,11 @@ public final class MobLevelService implements Listener {
     public int levelOf(LivingEntity entity) {
         Integer stored = entity.getPersistentDataContainer().get(levelKey, PersistentDataType.INTEGER);
         return stored == null ? 1 : clamp(stored);
+    }
+
+    public String displayName(LivingEntity entity) {
+        return entity.getPersistentDataContainer().getOrDefault(nameKey,
+                PersistentDataType.STRING, germanName(entity.getType()));
     }
 
     public int levelAt(Location location) {

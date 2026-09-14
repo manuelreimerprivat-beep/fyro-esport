@@ -8,6 +8,7 @@ import de.fyro.rise.model.Model.Profile;
 import de.fyro.rise.model.Model.RiseClass;
 import de.fyro.rise.progression.LevelCurve;
 import de.fyro.rise.storage.DataStore;
+import de.fyro.rise.targeting.TargetingService;
 import de.fyro.rise.util.GameRules;
 import de.fyro.rise.util.Text;
 import net.kyori.adventure.text.Component;
@@ -26,13 +27,16 @@ public final class GameService {
     private final DataStore data;
     private final GearService gear;
     private final DisplayService display;
+    private final TargetingService targeting;
     private final Map<UUID, Map<Integer, Long>> cooldowns = new HashMap<>();
 
-    public GameService(FyroRisePlugin plugin, DataStore data, GearService gear, DisplayService display) {
+    public GameService(FyroRisePlugin plugin, DataStore data, GearService gear, DisplayService display,
+                       TargetingService targeting) {
         this.plugin = plugin;
         this.data = data;
         this.gear = gear;
         this.display = display;
+        this.targeting = targeting;
     }
 
     public Profile profile(Player player) {
@@ -364,6 +368,11 @@ public final class GameService {
     }
 
     private LivingEntity nearestHostile(Player player, double radius) {
+        LivingEntity selected = targeting.target(player);
+        if (selected != null) {
+            return selected.getLocation().distanceSquared(player.getLocation()) <= radius * radius
+                    ? selected : null;
+        }
         return nearbyHostiles(player, radius).stream()
                 .min(Comparator.comparingDouble(entity -> entity.getLocation().distanceSquared(player.getLocation())))
                 .orElse(null);
