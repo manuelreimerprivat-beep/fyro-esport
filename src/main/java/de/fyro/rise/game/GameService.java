@@ -98,6 +98,7 @@ public final class GameService {
         if (!plugin.getConfig().getBoolean("pvp.enabled", true)) return false;
         Profile a = profile(attacker);
         Profile v = profile(victim);
+        if (!a.characterReady() || !v.characterReady()) return false;
         if (!plugin.getConfig().getBoolean("pvp.same-faction-damage", false)
                 && a.faction() != Faction.UNGEWAEHLT && a.faction() == v.faction()) return false;
         return !plugin.getConfig().getBoolean("pvp.require-both-opted-in", true)
@@ -251,8 +252,11 @@ public final class GameService {
         List<LivingEntity> result = new ArrayList<>();
         for (Entity entity : player.getNearbyEntities(radius, radius, radius)) {
             if (!(entity instanceof LivingEntity living) || living instanceof ArmorStand || living.isDead()) continue;
-            if (living instanceof Player target && !canPvp(player, target)) continue;
-            result.add(living);
+            if (living instanceof Player target) {
+                if (canPvp(player, target)) result.add(living);
+            } else if (living instanceof Enemy) {
+                result.add(living);
+            }
         }
         return result;
     }
