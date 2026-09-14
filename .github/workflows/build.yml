@@ -6,6 +6,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: fyro-rise-build-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -17,7 +21,7 @@ jobs:
       - name: Quellcode auschecken
         uses: actions/checkout@v4
       - name: Java 25 einrichten
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
@@ -41,6 +45,7 @@ jobs:
           )
           curl -fsSL -H "User-Agent: FYRO-RISE-CI/1.0 (https://github.com/${{ github.repository }})" "$PAPER_URL" -o server/paper.jar
           echo "eula=true" > server/eula.txt
+          printf "online-mode=false\nview-distance=4\nsimulation-distance=3\n" > server/server.properties
       - name: Echter Paper-Starttest
         shell: bash
         run: |
@@ -53,7 +58,12 @@ jobs:
             if ! kill -0 "$PAPER_PID" 2>/dev/null; then cat server.log; exit 1; fi
             sleep 2
           done
-          kill -INT "$PAPER_PID" 2>/dev/null || true
+          kill -TERM "$PAPER_PID" 2>/dev/null || true
+          for attempt in $(seq 1 30); do
+            if ! kill -0 "$PAPER_PID" 2>/dev/null; then break; fi
+            sleep 1
+          done
+          kill -KILL "$PAPER_PID" 2>/dev/null || true
           wait "$PAPER_PID" || true
           cat server.log
           test "$READY" -eq 1
