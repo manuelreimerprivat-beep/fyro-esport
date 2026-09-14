@@ -46,7 +46,7 @@ public final class GameListener implements Listener {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 Text.success(player, "Willkommen bei FYRO: RISE – FOR YOUR RISE ONLY");
                 if (!profile.characterReady()) {
-                    Text.send(player, "Starte mit /rise choose faction und /rise choose class.");
+                    Text.send(player, "Das Buch des Aufstiegs öffnet sich gleich für deine Charakterwahl.");
                 } else {
                     Text.send(player, "Level " + profile.level() + " • " + profile.riseClass().displayName()
                             + " • " + profile.faction().displayName());
