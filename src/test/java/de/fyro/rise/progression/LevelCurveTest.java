@@ -18,6 +18,14 @@ class LevelCurveTest {
     }
 
     @Test
+    void calculatesVisibleExperienceProgress() {
+        assertEquals(0.0f, LevelCurve.progress(1, 0), 0.0001f);
+        assertEquals(0.5f, LevelCurve.progress(1, 50), 0.0001f);
+        assertEquals(0.9999f, LevelCurve.progress(1, 999), 0.0001f);
+        assertEquals(1.0f, LevelCurve.progress(60, 0), 0.0001f);
+    }
+
+    @Test
     void grantsMultipleLevelsAndHonorsCap() {
         Profile profile = new Profile(UUID.randomUUID());
         List<Integer> reached = new ArrayList<>();
