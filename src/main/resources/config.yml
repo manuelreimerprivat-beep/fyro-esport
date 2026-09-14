@@ -2,6 +2,11 @@ server:
   max-tested-players: 50
   autosave-minutes: 5
   welcome-message: true
+intro:
+  enabled: true
+  play-on-every-join: false
+  duration-seconds: 10
+
 progression:
   max-level: 60
   base-kill-xp: 12
