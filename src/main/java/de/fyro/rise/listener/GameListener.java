@@ -2,12 +2,14 @@ package de.fyro.rise.listener;
 
 import de.fyro.rise.FyroRisePlugin;
 import de.fyro.rise.dungeon.DungeonService;
+import de.fyro.rise.display.DisplayService;
 import de.fyro.rise.game.GameService;
 import de.fyro.rise.gear.GearService;
 import de.fyro.rise.model.Model.Profile;
 import de.fyro.rise.quest.QuestService;
 import de.fyro.rise.storage.DataStore;
 import de.fyro.rise.util.Text;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
@@ -22,21 +24,24 @@ public final class GameListener implements Listener {
     private final GearService gear;
     private final QuestService quests;
     private final DungeonService dungeons;
+    private final DisplayService display;
 
     public GameListener(FyroRisePlugin plugin, DataStore data, GameService game, GearService gear,
-                        QuestService quests, DungeonService dungeons) {
+                        QuestService quests, DungeonService dungeons, DisplayService display) {
         this.plugin = plugin;
         this.data = data;
         this.game = game;
         this.gear = gear;
         this.quests = quests;
         this.dungeons = dungeons;
+        this.display = display;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         Profile profile = game.profile(player);
+        display.refresh(player);
         if (plugin.getConfig().getBoolean("server.welcome-message", true)) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 Text.success(player, "Willkommen bei FYRO: RISE – FOR YOUR RISE ONLY");
@@ -52,7 +57,25 @@ public final class GameListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        display.forget(event.getPlayer());
         data.unload(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onChat(AsyncChatEvent event) {
+        event.renderer((source, sourceDisplayName, message, viewer) ->
+                display.renderChat(source.getUniqueId(), sourceDisplayName, message));
+    }
+
+    @EventHandler
+    public void onVanillaExperience(PlayerExpChangeEvent event) {
+        event.setAmount(0);
+        Bukkit.getScheduler().runTask(plugin, () -> display.syncExperience(event.getPlayer()));
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> display.refresh(event.getPlayer()), 1L);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -110,6 +133,8 @@ public final class GameListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
+        event.setKeepLevel(true);
+        event.setDroppedExp(0);
         Profile profile = game.profile(victim);
         double percentage = plugin.getConfig().getDouble("progression.death-coin-loss-percent", 5);
         double loss = Math.floor(profile.coins() * Math.max(0, percentage) / 100.0);
