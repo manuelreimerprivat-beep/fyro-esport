@@ -24,8 +24,8 @@ public final class Model {
 
         public static Optional<Faction> parse(String input) {
             return switch (key(input)) {
-                case "aurora", "morgenrote", "orden", "allianz" -> Optional.of(AURORA);
-                case "obsidian", "pakt", "horde" -> Optional.of(OBSIDIAN);
+                case "aurora", "morgenrote", "morgenroete", "orden", "allianz" -> Optional.of(AURORA);
+                case "obsidian", "obsidianpakt", "pakt", "horde" -> Optional.of(OBSIDIAN);
                 default -> Optional.empty();
             };
         }
@@ -56,7 +56,7 @@ public final class Model {
             return switch (key(input)) {
                 case "krieger", "warrior" -> Optional.of(KRIEGER);
                 case "magier", "mage" -> Optional.of(MAGIER);
-                case "waldlaufer", "ranger" -> Optional.of(WALDLAEUFER);
+                case "waldlaufer", "waldlaeufer", "ranger" -> Optional.of(WALDLAEUFER);
                 case "priester", "heiler", "priest" -> Optional.of(PRIESTER);
                 default -> Optional.empty();
             };
