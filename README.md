@@ -1,10 +1,10 @@
 # FYRO: RISE
 
-Eigenständiges, deutschsprachiges Minecraft-RPG für **Paper 26.2** mit zwei originalen Fraktionen, vier Klassen, drei Fähigkeiten je Klasse, Level 1–60, Quests, Gruppen, Gilden, eigener Wirtschaft, Ausrüstung, Grabkrypta, Bossen und Fraktions-PvP.
+Eigenständiges, deutschsprachiges Minecraft-RPG für **Paper 26.2** mit Gilden-Tags über Spielern und im Chat, nativer Level-/EP-Leiste, zwei originalen Fraktionen, vier Klassen, drei Fähigkeiten je Klasse, Level 1–60, Quests, Gruppen, Gilden, eigener Wirtschaft, Ausrüstung, Grabkrypta, Bossen und Fraktions-PvP.
 
 ## Installation
 
-Die fertige `FYRO-RISE-1.0.0.jar` in den Ordner `plugins` laden, Paper 26.2 mit Java 25 neu starten und `/rise help` verwenden. Details stehen in `INSTALLATION_DE.md`.
+Die fertige `FYRO-RISE-1.1.0.jar` in den Ordner `plugins` laden, Paper 26.2 mit Java 25 neu starten und `/rise help` verwenden. Details stehen in `INSTALLATION_DE.md`.
 
 ## Build und Test
 
