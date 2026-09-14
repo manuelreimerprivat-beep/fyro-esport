@@ -39,6 +39,7 @@ public final class DataStore {
         profile.experience(yaml.getInt(root + ".experience", 0));
         profile.coins(yaml.getDouble(root + ".coins", 100.0));
         profile.pvpEnabled(yaml.getBoolean(root + ".pvp", false));
+        profile.introSeen(yaml.getBoolean(root + ".intro-seen", false));
         profile.activeQuest(yaml.getString(root + ".quest.active", ""));
         profile.questProgress(yaml.getInt(root + ".quest.progress", 0));
         profile.completedQuests().addAll(yaml.getStringList(root + ".quest.completed"));
@@ -54,6 +55,7 @@ public final class DataStore {
         yaml.set(root + ".experience", profile.experience());
         yaml.set(root + ".coins", profile.coins());
         yaml.set(root + ".pvp", profile.pvpEnabled());
+        yaml.set(root + ".intro-seen", profile.introSeen());
         yaml.set(root + ".quest.active", profile.activeQuest());
         yaml.set(root + ".quest.progress", profile.questProgress());
         yaml.set(root + ".quest.completed", new ArrayList<>(profile.completedQuests()));
