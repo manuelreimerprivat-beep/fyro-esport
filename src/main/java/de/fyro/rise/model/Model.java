@@ -71,6 +71,7 @@ public final class Model {
         private int experience = 0;
         private double coins = 100.0;
         private boolean pvpEnabled;
+        private boolean introSeen;
         private String activeQuest = "";
         private int questProgress;
         private final Set<String> completedQuests = new HashSet<>();
@@ -90,6 +91,8 @@ public final class Model {
         public void coins(double value) { coins = Math.max(0, Math.round(value * 100.0) / 100.0); }
         public boolean pvpEnabled() { return pvpEnabled; }
         public void pvpEnabled(boolean value) { pvpEnabled = value; }
+        public boolean introSeen() { return introSeen; }
+        public void introSeen(boolean value) { introSeen = value; }
         public String activeQuest() { return activeQuest; }
         public void activeQuest(String value) { activeQuest = value == null ? "" : value; }
         public int questProgress() { return questProgress; }
