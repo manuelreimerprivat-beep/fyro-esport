@@ -14,6 +14,14 @@ class ModelTest {
     }
 
     @Test
+    void storesIntroCompletionOnTheProfile() {
+        Model.Profile profile = new Model.Profile(java.util.UUID.randomUUID());
+        assertFalse(profile.introSeen());
+        profile.introSeen(true);
+        assertTrue(profile.introSeen());
+    }
+
+    @Test
     void parsesOnlyTheTwoPlayableFactions() {
         assertEquals(Model.Faction.AURORA, Model.Faction.parse("Aurora").orElseThrow());
         assertEquals(Model.Faction.OBSIDIAN, Model.Faction.parse("Obsidianpakt").orElseThrow());
