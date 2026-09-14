@@ -10,7 +10,7 @@
 
 1. Server stoppen und im MC-Host24-Panel ein Backup erstellen.
 2. Im Panel Paper 26.2 sowie Java 25 auswählen.
-3. Eine vorhandene ältere FYRO-RISE-JAR löschen und `FYRO-RISE-1.1.0.jar` in den Ordner `plugins` hochladen.
+3. Eine vorhandene ältere FYRO-RISE-JAR löschen und `FYRO-RISE-1.2.0.jar` in den Ordner `plugins` hochladen.
 4. Server vollständig neu starten; niemals `/reload` verwenden.
 5. In der Konsole muss `FYRO-RISE v1.0.0 aktiviert` stehen.
 6. Im Spiel `/rise help` ausführen.
@@ -39,6 +39,10 @@ Operator-Test:
 /rise admin spawnboss
 /rise dungeon crypt
 ```
+
+## Intro-Cutscene
+
+Beim ersten Betreten läuft eine ungefähr zehn Sekunden lange Vanilla-Cutscene. Sie benötigt weder Mod noch Resourcepack. Anschließend öffnet sich das Buch des Aufstiegs. In `config.yml` kann die Dauer über `intro.duration-seconds` zwischen 6 und 20 Sekunden eingestellt werden. Mit `intro.play-on-every-join: true` läuft sie bei jedem Beitritt.
 
 ## Anzeigen
 
