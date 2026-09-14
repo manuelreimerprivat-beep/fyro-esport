@@ -1,0 +1,33 @@
+quests:
+  erste_schatten:
+    name: "Erste Schatten"
+    description: "Besiege 10 Zombies."
+    target: ZOMBIE
+    amount: 10
+    minimum-level: 1
+    reward-xp: 150
+    reward-coins: 90
+  knochenlese:
+    name: "Knochenlese"
+    description: "Besiege 15 Skelette."
+    target: SKELETON
+    amount: 15
+    minimum-level: 3
+    reward-xp: 240
+    reward-coins: 140
+  spinnenplage:
+    name: "Spinnenplage"
+    description: "Besiege 20 Spinnen."
+    target: SPIDER
+    amount: 20
+    minimum-level: 6
+    reward-xp: 360
+    reward-coins: 210
+  kryptenwaechter:
+    name: "Der Grabfürst"
+    description: "Besiege den Boss der Grabkrypta."
+    target: FYRO_BOSS
+    amount: 1
+    minimum-level: 10
+    reward-xp: 800
+    reward-coins: 450

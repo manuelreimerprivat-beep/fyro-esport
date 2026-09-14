@@ -1,0 +1,23 @@
+server:
+  max-tested-players: 50
+  autosave-minutes: 5
+  welcome-message: true
+progression:
+  max-level: 60
+  base-kill-xp: 12
+  base-kill-coins: 3
+  death-coin-loss-percent: 5
+pvp:
+  enabled: true
+  same-faction-damage: false
+  require-both-opted-in: true
+dungeons:
+  grave-crypt:
+    minimum-level: 5
+    cooldown-minutes: 10
+    boss-health: 240.0
+    reward-xp: 500
+    reward-coins: 275
+performance:
+  maximum-dungeon-mobs-per-instance: 8
+  boss-update-ticks: 10
